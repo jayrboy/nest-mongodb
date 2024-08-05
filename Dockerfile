@@ -1,10 +1,17 @@
-FROM node:lts-alpine
-ENV NODE_ENV=production
+# ใช้ Node.js image
+FROM node:20
+
+# ตั้งค่า working directory
 WORKDIR /usr/src/app
-COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
-RUN npm install --production --silent && mv node_modules ../
+
+# คัดลอกโค้ดแอปพลิเคชันไปยัง working directory
 COPY . .
+
+# ติดตั้ง dependencies
+RUN npm install
+
+# ตั้งค่า port ที่จะใช้งาน
 EXPOSE 3000
-RUN chown -R node /usr/src/app
-USER node
-CMD ["npm", "start"]
+
+# รันแอปพลิเคชัน npm run start:dev
+CMD ["npm", "run", "start:dev"]

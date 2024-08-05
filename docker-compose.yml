@@ -1,12 +1,31 @@
 version: '3.4'
 
 services:
-  nestmongodb:
-    image: nestmongodb
+  nestjsmongodb:
+    image: nestjsmongodb
     build:
       context: .
       dockerfile: ./Dockerfile
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
+      PORT: 3000 # ตั้งค่า PORT ที่จะใช้งาน
+      MONGO_URI: mongodb://localhost:27017/nestjs_db # ใช้ Environment Variable สำหรับ MongoDB URI
     ports:
-      - 3000:3000
+      - '3000:3000'
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
+    driver: local

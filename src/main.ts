@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -11,6 +12,8 @@ async function bootstrap() {
     methods: ['POST', 'GET', 'PATCH', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
+
+  app.useGlobalPipes(new ValidationPipe());
 
   // Start listening on the specified port
   await app.listen(port, () =>

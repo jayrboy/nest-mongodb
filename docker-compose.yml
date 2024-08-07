@@ -1,12 +1,23 @@
 version: '3.8'
 
 services:
-  mongo:
-    image: mongo
-    restart: always
+  nestjs-api:
+    image: nestjs-api
+    build: . # ./Dockerfile
+    ports:
+      - '3000:3000'
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: 1234
+      NODE_ENV: development
+      PORT: 3000
+      MONGODB_URL: mongodb://mongo/nestjs_db
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
     ports:
       - '27017:27017'
     volumes:
@@ -14,4 +25,3 @@ services:
 
 volumes:
   mongo-data:
-    driver: local

@@ -1,38 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { Product, ProductDocument } from './schemas/product.schema';
 
 @Injectable()
 export class ProductsService {
-  private readonly products = [
-    { id: 1, name: 'Product 1', description: 'Description 1' },
-    { id: 2, name: 'Product 2', description: 'Description 2' },
-  ];
+  constructor(
+    @InjectModel(Product.name) private productModel: Model<ProductDocument>,
+  ) {}
 
   create(createProductDto: CreateProductDto) {
-    this.products.push(createProductDto);
-    return this.products;
+    const createdProduct = new this.productModel(createProductDto);
+    return createdProduct.save();
   }
 
-  findAll() {
-    return this.products;
+  findAll(): Promise<Product[]> {
+    return this.productModel.find().exec();
   }
 
-  findOne(id: number) {
-    return this.products.find((p) => p.id == id) ?? new CreateProductDto();
+  findOne(id: string): Promise<Product> {
+    return this.productModel.findById(id).exec();
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  update(id: string, updateProductDto: UpdateProductDto) {
+    const updatedUser = this.productModel
+      .findByIdAndUpdate(id, updateProductDto, { new: true })
+      .exec();
+    return updatedUser;
   }
 
-  remove(id: number) {
-    const index = this.products.findIndex((product) => product.id === id);
-
-    if (index !== -1) {
-      return this.products.splice(index, 1);
+  async remove(id: string) {
+    const result = await this.productModel.findByIdAndDelete(id).exec();
+    if (!result) {
+      throw new NotFoundException('id not found');
     }
-
-    return new CreateProductDto();
+    return { message: 'Delete successfully' };
   }
 }
